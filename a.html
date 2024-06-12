@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maze Game</title>
+    <style>
+        /* styles.css */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-image: url('for.jpg');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            background-size: cover;
+            position: relative;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        h1, h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+        }
+
+        .start-page button {
+            background-color: #32CD32;
+        }
+
+        .start-page button:hover {
+            background-color: #2e8b2e;
+        }
+
+        .player-selection, .difficulty-selection, .maze-container, .game-rules {
+            display: none;
+        }
+
+        .maze-container {
+            margin-top: 20px;
+        }
+
+        .back-button-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .game-rules-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .back-button, .rules-button {
+            font-size: 16px;
+            padding: 8px 16px;
+            border-radius: 5px;
+            background-color: #FFD700;
+            color: #333;
+            border: 1px solid #FFD700;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .back-button:hover, .rules-button:hover {
+            background-color: #FFD700;
+            color: #fff;
+        }
+
+        .game-rules {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: absolute;
+            top: 60px;
+            right: 0;
+            width: 300px;
+            display: none;
+            z-index: 1;
+        }
+
+        .play-again-container {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container start-page">
+        <h1>Welcome to Maze Game</h1>
+        <button onclick="showDifficultySelection()">Start</button>
+    </div>
+
+    <div class="back-button-container">
+        <button class="back-button" onclick="goBack()">Back</button>
+    </div>
+
+    <div class="game-rules-container">
+        <button class="rules-button" onclick="toggleGameRules()">Game Rules</button>
+        <div class="game-rules">
+            <h2>Game Rules</h2>
+            <p>The objective of the game is to reach the key and then reach the door.<br><br>
+            Players can use arrow keys to move Player 2 controls are: <br>W (Up), S (Down), A (Left), D (Right).<br><br>
+            If a player reaches the door without first obtaining the key, they cannot win</p>
+        </div>
+    </div>
+
+    <div class="container difficulty-selection">
+        <h2>Choose Difficulty</h2>
+        <a href="easy.html"><button>Easy</button></a>
+        <a href="medium.html"><button>Medium</button></a>
+        <a href="hard.html"><button>Hard</button></a>
+    </div>
+
+    <div class="play-again-container">
+        <button onclick="playAgain()">Play Again</button>
+    </div>
+
+    <script>
+        const startPage = document.querySelector('.start-page');
+        const difficultySelection = document.querySelector('.difficulty-selection');
+        const gameRulesContainer = document.querySelector('.game-rules');
+        const playAgainContainer = document.querySelector('.play-again-container');
+
+        function showDifficultySelection() {
+            startPage.style.display = 'none';
+            difficultySelection.style.display = 'block';
+        }
+
+        function goBack() {
+            difficultySelection.style.display = 'none';
+            startPage.style.display = 'block';
+        }
+
+        function toggleGameRules() {
+            gameRulesContainer.style.display = gameRulesContainer.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function playAgain() {
+            // Implement the logic to reset the game here
+            // For example, reload the page or reset game state
+            location.reload(); // Reload the page for demonstration
+        }
+
+        // Show the play again button after the game ends
+        function showPlayAgainButton() {
+            playAgainContainer.style.display = 'block';
+        }
+
+        // Example function to simulate the end of the game
+        function endGame() {
+            showPlayAgainButton();
+        }
+
+        // Simulate the end of the game after 5 seconds for demonstration purposes
+        setTimeout(endGame, 5000);
+    </script>
+</body>
+</html>
+
