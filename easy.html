@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combined Multiplayer Maze Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('ground.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed; 
+            background-size: 100% 100%;
+        }
+
+        .maze-container {
+            display: flex;
+            justify-content: space-around;
+            width: 80%;
+            margin-bottom: 90px;
+        }
+
+        .maze {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        canvas {
+            border: 2px solid #000;
+            margin: 10px;
+        }
+
+        h1, h2 {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>READY?</h1>
+    <div class="maze-container">
+        <div class="maze">
+            <h2>Player one</h2>
+            <canvas id="mazeCanvas1" width="420" height="420"></canvas>
+        </div>
+        <div class="maze">
+            <h2>Player two</h2>
+            <canvas id="mazeCanvas2" width="420" height="420"></canvas>
+        </div>
+    </div>
+    
+
+    <script>
+        const maze1 = [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1],
+        [1,0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,1],
+        [1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,0,1,0,1,0,1],
+        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0,1],
+        [1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+        [1,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1],
+        [1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,0,1],
+        [1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,0,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,1,0,1,0,1,1,1,0,1,1,1,1,1,0,1],
+        [1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,1,0,0,0,1],
+        [1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,0,1,1,1],
+        [1,0,1,0,1,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,1],
+        [1,0,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1],
+        [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,'K',0,0,1],
+        [1,0,1,0,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1],
+        [1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,'D'],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        ];
+
+        
+
+        const maze2 = [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1],
+        [1,0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,1],
+        [1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,0,1,0,1,0,1],
+        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0,1],
+        [1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+        [1,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1],
+        [1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,0,1],
+        [1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,0,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,1,0,1,0,1,1,1,0,1,1,1,1,1,0,1],
+        [1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,1,0,0,0,1],
+        [1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,0,1,1,1],
+        [1,0,1,0,1,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,1],
+        [1,0,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1],
+        [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,'K',0,0,1],
+        [1,0,1,0,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1],
+        [1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,'D'],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        ];
+
+        const tileSize = 20;
+        const canvas1 = document.getElementById('mazeCanvas1');
+        const ctx1 = canvas1.getContext('2d');
+        const canvas2 = document.getElementById('mazeCanvas2');
+        const ctx2 = canvas2.getContext('2d');
+
+        const players = [
+            { x: 1, y: 1, color: '#00f', hasKey: false },
+            { x: 1, y: 1, color: '#f00', hasKey: false }
+        ];
+
+        function startTimer(duration, display) {
+            var start = Date.now(),
+                diff,
+                minutes,
+                seconds;
+
+            function timer() {
+                if(playing) {
+                    diff = duration - (((Date.now() - start) / 1000) | 0);
+                    minutes = (diff / 60) | 0;
+                    seconds = (diff % 60) | 0;
+                    minutes = minutes < 10 ? "0" + minutes : minutes;
+                    seconds = seconds < 10 ? "0" + seconds : seconds;
+                    display.textContent = "Game ends in " + minutes + ":" + seconds;
+
+                    if (diff <= 0) {
+                        display.textContent = "Game Over";
+                        start = Date.now() + 1000;
+                        playing = false
+                        modelfungo();
+                    }
+                }
+            };
+            timer();
+            drawGame(timer,1000);
+        }
+
+
+
+        function drawMaze(ctx, maze) {
+            for (let y = 0; y < maze.length; y++) {
+                for (let x = 0; x < maze[y].length; x++) {
+                    if (maze[y][x] === 1) {
+                        ctx.fillStyle = '#000';
+                    } else if (maze[y][x] === 'K') {
+                        ctx.fillStyle = '#ff0';
+                        
+                    } else if (maze[y][x] === 'D') {
+                        ctx.fillStyle = '#0f0';
+                    } else {
+                        ctx.fillStyle = '#fff';
+                    }
+                    ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                }
+            }
+        }
+
+        function drawPlayer(ctx, player) {
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
+        }
+
+        function movePlayer(player, dx, dy, maze) {
+            const newX = player.x + dx;
+            const newY = player.y + dy;
+
+            if (maze[newY][newX] === 0 || maze[newY][newX] === 'K' || (maze[newY][newX] === 'D' && player.hasKey)) {
+                player.x = newX;
+                player.y = newY;
+
+                if (maze[newY][newX] === 'K') {
+                    player.hasKey = true;
+                    maze[newY][newX] = 0;
+                }
+
+                if (maze[newY][newX] === 'D' && player.hasKey) {
+                    alert(`Player ${players.indexOf(player) + 1} wins!`);
+                    resetGame();
+                }
+            }
+        }
+
+        function resetGame() {
+            players.forEach(player => {
+                player.x = 1;
+                player.y = 1;
+                player.hasKey =true;
+                
+            });
+            drawGame();
+           
+           
+        }
+       
+
+
+
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'ArrowUp':
+                    movePlayer(players[1], 0, -1, maze2);
+                    break;
+                case 'ArrowDown':
+                    movePlayer(players[1], 0, 1, maze2);
+                    break;
+                case 'ArrowLeft':
+                    movePlayer(players[1], -1, 0, maze2);
+                    break;
+                case 'ArrowRight':
+                    movePlayer(players[1], 1, 0, maze2);
+                    break;
+                case 'w':
+                    movePlayer(players[0], 0, -1, maze1);
+                    break;
+                case 's':
+                    movePlayer(players[0], 0, 1, maze1);
+                    break;
+                case 'a':
+                    movePlayer(players[0], -1, 0, maze1);
+                    break;
+                case 'd':
+                    movePlayer(players[0], 1, 0, maze1);
+                    break;
+            }
+            drawGame();
+        });
+
+        function drawGame() {
+            ctx1.clearRect(0, 0, canvas1.width, canvas1.height,);
+            drawMaze(ctx1, maze1);
+            drawPlayer(ctx1, players[0]);
+
+            ctx2.clearRect(0, 0, canvas2.width, canvas2.height,);
+            drawMaze(ctx2, maze2);
+            drawPlayer(ctx2, players[1]);
+          
+        }
+
+        drawGame();
+    </script>
+</body>
+</html>
+
