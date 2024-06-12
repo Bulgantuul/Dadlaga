@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maze Game</title>
+    <style>
+        /* styles.css */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-image: url('for.jpg');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            background-size: cover;
+            position: relative; /* Add this line */
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        h1, h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+        }
+
+        .start-page button {
+            background-color: #32CD32; /* Light green */
+        }
+
+        .start-page button:hover {
+            background-color: #2e8b2e; /* Darker green */
+        }
+
+        .player-selection, .difficulty-selection, .maze-container, .game-rules {
+            display: none;
+        }
+
+        .maze-container {
+            margin-top: 20px;
+        }
+
+        .back-button-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .game-rules-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .back-button, .rules-button {
+            font-size: 16px;
+            padding: 8px 16px;
+            border-radius: 5px;
+            background-color: #FFD700; /* Light yellow */
+            color: #333;
+            border: 1px solid #FFD700;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .back-button:hover, .rules-button:hover {
+            background-color: #FFD700; /* Darker yellow */
+            color: #fff;
+        }
+
+        .game-rules {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: absolute;
+            top: 60px;
+            right: 0;
+            width: 300px;
+            display: none;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container start-page">
+        <h1>Welcome to Maze Game</h1>
+        <button onclick="showPlayerSelection()">Start</button>
+    </div>
+
+    <div class="back-button-container">
+        <button class="back-button" onclick="goBack()">Back</button>
+    </div>
+
+    <div class="game-rules-container">
+        <button class="rules-button" onclick="toggleGameRules()">Game Rules</button>
+        <div class="game-rules">
+            <h2>Game Rules</h2>
+            <p>The objective of the game is to be the first player to reach the key and then reach the door.<br><br>
+    Players can use arrow keys to move Player 1 controls are:<br> Up (↑), Down (↓), Left (←), Right (→).<br> Player 2 controls are: <br>W (Up), S (Down), A (Left), D (Right).<br><br>
+    If a player reaches the door without first obtaining the key, they cannot win</p>
+        </div>
+    </div>
+
+    <div class="container player-selection">
+        <h2>Choose Number of Players</h2>
+        <button onclick="showDifficultySelection(1)">1 Player</button>
+        <button onclick="showDifficultySelection(2)">2 Players</button>
+    </div>
+
+    <div class="container difficulty-selection">
+        <h2>Choose Difficulty</h2>
+        <button onclick="startGame(1)">Easy</button>
+        <button onclick="startGame(2)">Medium</button>
+        <button onclick="startGame(3)">Hard</button>
+    </div>
+
+    <div class="container maze-container">
+        <h2>Player 1</h2>
+        <canvas id="mazeCanvas1" width="500" height="500"></canvas>
+    </div>
+    <div class="container maze-container" id="player2-container">
+        <h2>Player 2</h2>
+        <canvas id="mazeCanvas2" width="500" height="500"></canvas>
+    </div>
+
+    <script>
+        const startPage = document.querySelector('.start-page');
+        const playerSelection = document.querySelector('.player-selection');
+        const difficultySelection = document.querySelector('.difficulty-selection');
+        const mazeContainers = document.querySelectorAll('.maze-container');
+        const player2Container = document.getElementById('player2-container');
+        const gameRulesContainer = document.querySelector('.game-rules');
+
+        const canvas1 = document.getElementById('mazeCanvas1');
+        const ctx1 = canvas1.getContext('2d');
+
+        const canvas2 = document.getElementById('mazeCanvas2');
+        const ctx2 = canvas2.getContext('2d');
+
+        let selectedDifficulty = null;
+        let numPlayers = 1;
+
+        const levels = {
+            1: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 0, 1, 1, 1, 0, 0, 1],
+            [1, 0, 1, 0, 0, 0, 1, 1, 0, 1],
+            [1, 0, 1, 1, 1, 0, 1, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            ],
+            2: [
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+                [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            ],
+            3: [
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+                [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            ]
+        };
+
+        const tileSize = 50;
+
+        function drawMaze(ctx, maze) {
+            for (let y = 0; y < maze.length; y++) {
+                for (let x = 0; x < maze[y].length; x++) {
+                    ctx.fillStyle = maze[y][x] === 1 ? '#000' : '#fff';
+                    ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                }
+            }
+        }
+
+        function drawPlayer(ctx, x, y) {
+            ctx.fillStyle = '#00f';
+            ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+        }
+
+        function showPlayerSelection() {
+            startPage.style.display = 'none';
+            playerSelection.style.display = 'block';
+        }
+
+        function showDifficultySelection(players) {
+            numPlayers = players;
+            playerSelection.style.display = 'none';
+            difficultySelection.style.display = 'block';
+        }
+
+        function startGame(difficulty) {
+            selectedDifficulty = difficulty;
+            difficultySelection.style.display = 'none';
+
+            if (numPlayers === 1) {
+                player2Container.style.display = 'none';
+            } else {
+                player2Container.style.display = 'block';
+            }
+
+            mazeContainers.forEach(container => {
+                if (numPlayers === 1 && container.id === 'player2-container') {
+                    container.style.display = 'none';
+                } else {
+                    container.style.display = 'block';
+                }
+            });
+
+            const maze = levels[selectedDifficulty];
+            canvas1.width = maze[0].length * tileSize;
+            canvas1.height = maze.length * tileSize;
+            ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+            drawMaze(ctx1, maze);
+            drawPlayer(ctx1, 1, 1); // Initial player position
+
+            if (numPlayers === 2) {
+                canvas2.width = maze[0].length * tileSize;
+                canvas2.height = maze.length * tileSize;
+                ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+                drawMaze(ctx2, maze);
+                drawPlayer(ctx2, 1, 1); // Initial player position
+            }
+        }
+
+        function goBack() {
+            difficultySelection.style.display = 'none';
+            playerSelection.style.display = 'none';
+            startPage.style.display = 'block';
+            player2Container.style.display = 'none';
+            mazeContainers.forEach(container => {
+                container.style.display = 'none';
+            });
+        }
+
+        function toggleGameRules() {
+            gameRulesContainer.style.display = gameRulesContainer.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>
+</body>
+</html>
+
+
+
